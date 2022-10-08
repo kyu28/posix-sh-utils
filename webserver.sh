@@ -74,5 +74,5 @@ elif [ "$1" = "serve" ]; then
   webserve
 else
   printf "Simple web server\n\n"
-  printf "Usage: $0 start [PORT]\n"
+  printf "Usage: $0 start\n"
 fi
