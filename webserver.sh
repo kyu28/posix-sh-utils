@@ -4,6 +4,7 @@
 SHELL=/bin/sh
 PORT=8000
 WEBROOT=.
+SAVEIFS=$IFS
 
 webserve() {
   read request
@@ -15,6 +16,13 @@ webserve() {
   url="${request#GET }"
   url="${url% HTTP/*}"
   filename="$WEBROOT$url"
+# Replace %20 with <space>
+  suffix=${filename#*"%20"}
+  while [ "$filename" != "$suffix" ]; do
+    prefix=${filename%%"%20"*}
+    filename=$prefix' '$suffix
+    suffix=${filename#*"%20"}
+  done
 
   if [ -f "$filename" ]; then
     printf "HTTP/1.1 200 OK\r\n"
@@ -25,6 +33,7 @@ webserve() {
     ([ "$ext" = htm ] || [ "$ext" = html ]) && mime="text/html"
     [ "$ext" = css ] && mime="text/css"
     [ "$ext" = js ] && mime="text/javascript"
+    [ "$ext" = txt ] && mime="text/plain"
     ([ "$ext" = jpg ] || [ "$ext" = jpeg ]) && mime="image/jpeg"
     [ "$ext" = png ] && mime="image/png"
     [ "$ext" = gif ] && mime="image/gif"
@@ -47,10 +56,19 @@ webserve() {
     printf "<meta charset=\"utf-8\">"
     upperDir=${url%/*/}/
     [ "$url" != '/' ]  && printf "<a href=\"${upperDir:-/}\">../</a><br/>"
-  # Known issue: Cannot correctly parse filename with space
-    for i in $(ls -p $WEBROOT$url); do
-      printf "<a href=\"$url$i\">$i</a><br/>\n"
+    IFS=$'\n'
+    for i in $(ls -w 1 -p $WEBROOT$url); do
+      inner_html=$i
+# Replace <space> with &nbsp;
+      suffix=${inner_html#*' '}
+      while [ "$inner_html" != "$suffix" ]; do
+        prefix=${inner_html%%' '*}
+        inner_html=$prefix'&nbsp;'$suffix
+        suffix=${inner_html#*' '}
+      done
+      printf "<a href=\"$url$i\">$inner_html</a><br/>\n"
     done
+    IFS=$SAVEIFS
     printf "\r\n"
 # End of directory index
   else
