@@ -1,28 +1,27 @@
 #!/bin/sh
-print1() { printf %s "$1"; }
-print2() { printf %s "$2"; }
-print4() { printf %s "$4"; }
-print8() { printf %s "$8"; }
-print9() { printf %s "$9"; }
-print11() { printf %s "${11}"; }
+builtin_cat() {
+  while IFS= read t; do
+    printf "%s\n" "$t"
+  done < $1
+}
+alias arr='set --'
 while true; do
-  wifi=$(cat /sys/class/net/wlp2s0/operstate)
-  eth=$(cat /sys/class/net/eno1/operstate)
-  mem=$(free -h)
-  mem=$(print9 $mem)'/'$(print8 $mem)
-  #sys_load=$(print1 $(cat /proc/loadavg))
-  #disk=$(print11 $(df -h /))
-  #battery="$(cat /sys/class/power_supply/BAT0/status) $(cat /sys/class/power_supply/BAT0/capacity)%"
-  #temp=$(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))"°C"
+  wifi=$(builtin_cat /sys/class/net/wlp1s0/operstate)
+#  eth=$(builtin_cat /sys/class/net/eno1/operstate)
+  arr $(free -h) && mem=$9'/'$8
+#  arr $(builtin_cat /proc/loadavg) && sys_load=$1
+#  arr $(df -h /) && disk=${11}
+  battery="$(builtin_cat /sys/class/power_supply/BAT0/status) $(builtin_cat /sys/class/power_supply/BAT0/capacity)%"
+#  temp=$(($(builtin_cat /sys/class/thermal/thermal_zone0/temp) / 1000))"°C"
   date=$(date +"%Y-%m-%d %H:%M")
   voldata=$(pactl list sinks| grep -B 2 -A 7 "Name: $(pactl get-default-sink)")
-  voldevice=$(print2 $voldata)
-  if [ $(print1 ${voldata#*Mute:}) = "no" ]; then
-    volume=$(print4 ${voldata#*Volume:})
+  arr $voldata && voldevice=$2
+  arr ${voldata#*Mute:}
+  if [ "$1" = "no" ]; then
+    volume=$6
   else
     volume="Muted"
   fi
-  output="W: $wifi | E: $eth | Vol: $voldevice $volume | $mem | $date"
-  xsetroot -name "$output"
+  xsetroot -name "W: $wifi | $battery | Vol: $voldevice $volume | $mem | $date"
   sleep 5
 done
