@@ -1,7 +1,7 @@
 #!/bin/sh
-vol=$(pactl get-sink-volume @DEFAULT_SINK@ | grep 'Volume:' | head -n $(( $SINK + 1 )) | tail -n 1 | sed -e 's,.* \([0-9][0-9]*\)%.*,\1,')
 if [ $@ = "up" ]; then
-  vol=$[ $vol + 10 ]
+  set -- $(pactl get-sink-volume @DEFAULT_SINK@)
+  vol=$((${5%'%'} + 10))
   if [ $vol -le 100 ]; then
     pactl set-sink-volume @DEFAULT_SINK@ +10%
   fi
@@ -11,5 +11,6 @@ else
   pactl set-sink-mute @DEFAULT_SINK@ toggle
 fi
 
-kill $(ps --no-headers -C status.sh | awk '{print $1}')
+set -- $(ps -C status.sh)
+kill $5
 exec status.sh
