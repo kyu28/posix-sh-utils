@@ -11,6 +11,7 @@ else
   pactl set-sink-mute @DEFAULT_SINK@ toggle
 fi
 
-set -- $(ps -C status.sh)
-kill $5
+psdata=$(ps -A -o comm -o pid)
+set -- ${psdata#*'status.sh'}
+kill -9 -$1
 exec status.sh
