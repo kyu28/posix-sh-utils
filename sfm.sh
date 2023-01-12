@@ -78,7 +78,7 @@ sfm_print() {
 
 sfm_key_input() {
   read -rn 1 sfm_input
-  [ "$sfm_input" = "$sfm_escape" ] && read -rn 2 sfm_input
+  [ "$sfm_input" = "$sfm_escape" ] && read -rn 2 -t 0.01 sfm_input
   case "$sfm_input" in
     'q') sfm_quit;;
     '[A')
@@ -141,25 +141,18 @@ sfm_key_input() {
         printf "\033[$sfm_cursor;1H\033[7m  $sfm_cur_file\n\033[m"
       fi;;
     'v')
-      for sfm_marked_file in $sfm_marked; do
-        mv "$sfm_marked_file" .
-      done
+      mv $sfm_marked .
       sfm_marked=""
       sfm_update;;
     'p')
-      for sfm_marked_file in $sfm_marked; do
-        /bin/cp -rf "$sfm_marked_file" .
-      done
+      /bin/cp -rf $sfm_marked . # Careful with *
       sfm_marked=""
       sfm_update;;
     'd')
       printf "\033[$sfm_height;1H\033[2KDelete these files? (y/N)"
       read -rn 1 sfm_input
       if [ $sfm_input = 'y' ]; then
-        for sfm_marked_file in $sfm_marked; do
-          rm -rf "$sfm_marked_file" .
-        done
-        rm -rf "$sfm_marked"
+        rm -rf $sfm_marked
         [ $? -ne 0 ] && sleep 3
         sfm_marked=""
         sfm_update
