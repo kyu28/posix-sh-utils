@@ -37,6 +37,9 @@ sfm() {
 ```
 to your ~/.bashrc or ~/.zshrc file
 
+Known issue:
+- Careful with filenames contain `*`
+
 ## svi.sh - simple vi
 A functionless simple vi editor implementation
 
