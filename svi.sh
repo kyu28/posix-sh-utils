@@ -23,6 +23,7 @@ svi_init() {
   svi_width=$(stty size)
   svi_height=${svi_width% *}
   svi_width=${svi_width#* }
+  stty -echo
   svi_load_file
   svi_load_page
   IFS=$svi_ifs
@@ -105,7 +106,7 @@ svi_move_cursor() {
 
 svi_insert() {
   svi_line_buffer=""
-  while read -rsn 1 svi_input; do
+  while read -rn 1 svi_input; do
     case "$svi_input" in
       "$svi_escape")
         break;;
@@ -143,6 +144,7 @@ svi_write() {
 
 svi_quit() {
   IFS=$svi_saveifs
+  stty echo
   clear
   exit 0
 }
@@ -165,13 +167,16 @@ svi_exec() {
 
 svi_command() {
   svi_cmd=""
-  while read -rsn 1 svi_input; do
+  while read -rn 1 svi_input; do
     case "$svi_input" in
       "$svi_escape")
         break;;
       '')
         svi_exec "$svi_cmd"
         break;;
+      "$svi_backspace")
+        [ ${#svi_cmd} -gt 0 ] && printf "\033[D \033[D"
+        svi_cmd="${svi_cmd%?}";; # Remove last char
       *)
        printf "%s" "$svi_input"
        svi_cmd="$svi_cmd""$svi_input";;
@@ -205,8 +210,8 @@ svi_print() {
 }
 
 svi_key_input() {
-  read -rsn 1 svi_input
-  [ "$svi_input" = "$svi_escape" ] && read -rsn 2 -t 0.01 svi_input
+  read -rn 1 svi_input
+  [ "$svi_input" = "$svi_escape" ] && read -rn 2 -t 0.01 svi_input
   case "$svi_input" in
     "$svi_escape")
       svi_mode=0;;
