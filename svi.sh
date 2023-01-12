@@ -95,6 +95,10 @@ svi_load_page() {
     svi_i=$(($svi_i + 1))
   done
   svi_row_num=$(($svi_i - 1))
+  while [ $svi_i -lt $svi_height ]; do
+    svi_page=${svi_page}'~'$'\r'
+    svi_i=$(($svi_i + 1))
+  done
   svi_page=${svi_page%$'\r'}
   IFS=$svi_oldifs
 }
