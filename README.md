@@ -16,7 +16,7 @@ A script that start a webserver with file index, requires netcat or socat
 ## sfm.sh - simple file manager
 A simple file manager script, inspired by nnn and fff
 
-Usage:
+Usage:  
 `sfm.sh [-a]`
 - Navigate - up and down key
 - Go to parent directory - left key
@@ -45,9 +45,10 @@ Known issue:
 
 ## svi.sh - simple vi
 A functionless simple vi editor implementation
-`svi.sh FILENAME`
 
-Usage:
+
+Usage:  
+`svi.sh FILENAME`
 - At normal mode
   - Delete one line - D
   - Clear one line and enter insert mode - S
