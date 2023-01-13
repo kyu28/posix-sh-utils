@@ -78,7 +78,12 @@ sfm_print() {
 
 sfm_key_input() {
   read -rn 1 sfm_input
-  [ "$sfm_input" = "$sfm_escape" ] && read -rn 2 -t 0.01 sfm_input
+  while [ "$sfm_input" = "$sfm_escape" ]; do
+    read -rn 1 sfm_input
+    [ "$sfm_input" = '[' ] && read -rn 1 sfm_input && sfm_input='['$sfm_input
+    # F keys
+    [ "$sfm_input" = 'O' ] && read -rn 1 sfm_input && sfm_input='O'$sfm_input
+  done
   case "$sfm_input" in
     'q') sfm_quit;;
     '[A')
@@ -156,6 +161,20 @@ sfm_key_input() {
         [ $? -ne 0 ] && sleep 3
         sfm_marked=""
         sfm_update
+      fi;;
+    'm')
+      printf "\033[$sfm_height;1H\033[2KNew directory name: \033[?25h"
+      stty echo
+      read sfm_input
+      stty -echo
+      printf "\033[?25l"
+      if [ -n "$sfm_input" ]; then
+        mkdir "$sfm_input"
+        if [ $? -eq 0 ]; then
+          sfm_update
+        else
+          printf "\033[$sfm_height;1H\033[2K$sfm_error" && sleep 3
+        fi
       fi;;
   esac
 }

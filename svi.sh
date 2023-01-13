@@ -211,10 +211,13 @@ svi_print() {
 
 svi_key_input() {
   read -rn 1 svi_input
-  [ "$svi_input" = "$svi_escape" ] && read -rn 2 -t 0.01 svi_input
+  while [ "$svi_input" = "$svi_escape" ]; do
+    read -rn 1 svi_input
+    [ "$svi_input" = '[' ] && read -rn 1 svi_input && svi_input='['$svi_input
+    # F keys
+    [ "$svi_input" = 'O' ] && read -rn 1 svi_input && svi_input='O'$svi_input
+  done
   case "$svi_input" in
-    "$svi_escape")
-      svi_mode=0;;
     '[A')
       if [ $svi_cursor_y -gt 1 ]; then
         svi_cursor_y=$(($svi_cursor_y - 1))
