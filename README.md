@@ -22,6 +22,7 @@ Usage:
 - Go into highlighted directory - right key
 - Delete highlighted file or directory - x
 - Rename or move highlighted file or directory - r
+- Make a new directory - m
 - Mark or unmark a file or directory - space
 - Copy marked files and directories to current directory - p
 - Move marked files and directories to current directory - v
