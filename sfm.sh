@@ -11,8 +11,9 @@ sfm_pwd=""
 sfm_page=""
 sfm_marked=""
 sfm_saveifs=$IFS
-sfm_escape="$(printf '\033')"
 IFS=$'\n'
+sfm_escape="$(printf '\033')"
+sfm_ls="ls$IFS-p$IFS-w1"
 
 sfm_init() {
   stty -echo # No echo
@@ -38,7 +39,7 @@ sfm_update() {
   sfm_pwd=$PWD
   sfm_files=""
   sfm_page=""
-  set -- $(ls -p -w1 $PWD)
+  set -- $($sfm_ls $PWD)
   sfm_files_num=$#
   if [ $(($sfm_start + $sfm_cursor - 1)) -gt $sfm_files_num ]; then
     sfm_cursor=$(($sfm_height - 1))
@@ -70,7 +71,7 @@ sfm_print() {
       fi
     done
     [ $sfm_marked_flag -eq 0 ] && printf " "
-    printf " $sfm_file\n"
+    printf " %s\n" "$sfm_file"
     [ $sfm_i -eq $sfm_cursor ] && printf "\033[m"
     sfm_i=$((sfm_i + 1))
   done
@@ -180,6 +181,9 @@ sfm_key_input() {
 }
 
 main() {
+  for sfm_i in $@; do
+    [ "$sfm_i" = "-a" ] && sfm_ls="$sfm_ls$IFS-a"
+  done
   sfm_init
   trap 'sfm_quit' EXIT INT
   while [ 0 ]; do # true
