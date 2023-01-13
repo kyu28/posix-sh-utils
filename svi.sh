@@ -32,16 +32,19 @@ svi_init() {
 
 svi_load_file() {
   svi_buffer=""
-  while IFS= read svi_line; do
-    svi_buffer="$svi_buffer""$svi_line"$svi_ifs
-  done < "$svi_file"
-  IFS="$svi_ifs"
-  svi_buffer=${svi_buffer%"$IFS"}
+  if [ -f "$svi_file" ]; then
+    while IFS= read svi_line; do
+      svi_buffer="$svi_buffer""$svi_line"$svi_ifs
+    done < "$svi_file"
+    IFS="$svi_ifs"
+    svi_buffer=${svi_buffer%"$IFS"}
+  fi
 }
 
 svi_newline() {
   svi_i=1
   svi_tmp=""
+  [ $svi_row_num -eq 0 ] && svi_row_num=1 && svi_buffer=" $IFS"
   for svi_line in $svi_buffer; do
     if [ $svi_i -eq $1 ]; then
       svi_tmp="$svi_tmp"' '"$IFS"
@@ -51,8 +54,8 @@ svi_newline() {
     svi_i=$(($svi_i + 1))
   done
   if [ $svi_i -eq $1 ]; then
-      svi_tmp="$svi_tmp"' '"$IFS"
-      svi_row_num=$(($svi_row_num + 1))
+    svi_tmp="$svi_tmp"' '"$IFS"
+    svi_row_num=$(($svi_row_num + 1))
   fi
   svi_buffer="$svi_tmp"
 }
