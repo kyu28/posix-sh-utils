@@ -50,6 +50,10 @@ svi_newline() {
     svi_tmp="$svi_tmp""$svi_line""$IFS"
     svi_i=$(($svi_i + 1))
   done
+  if [ $svi_i -eq $1 ]; then
+      svi_tmp="$svi_tmp"' '"$IFS"
+      svi_row_num=$(($svi_row_num + 1))
+  fi
   svi_buffer="$svi_tmp"
 }
 
