@@ -17,6 +17,7 @@ A script that start a webserver with file index, requires netcat or socat
 A simple file manager script, inspired by nnn and fff
 
 Usage:
+`sfm.sh [-a]`
 - Navigate - up and down key
 - Go to parent directory - left key
 - Go into highlighted directory - right key
@@ -27,12 +28,13 @@ Usage:
 - Copy marked files and directories to current directory - p
 - Move marked files and directories to current directory - v
 - Quit sfm - q
+- To show hidden objects, use option `-a`
 
 Tips:
 To enable cd on exit, add
 ```
 sfm() {
-  /bin/sfm # path to your sfm
+  /bin/sfm "$@"  # path to your sfm
   cd $(cat $HOME/.sfm_path)
 }
 ```
@@ -43,6 +45,7 @@ Known issue:
 
 ## svi.sh - simple vi
 A functionless simple vi editor implementation
+`svi.sh FILENAME`
 
 Usage:
 - At normal mode
