@@ -10,7 +10,7 @@ webserve() {
   read request
   while true; do
     read header
-    [ "$header" = $'\r' ] && break;
+    [ "$header" = "$(printf '\r')" ] && break;
   done
 
   url="${request#GET }"
