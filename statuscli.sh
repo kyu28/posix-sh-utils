@@ -5,6 +5,8 @@ builtin_cat() {
   done < $1
 }
 alias arr='set --'
+arr $(stty size)
+width=$(($2 + 1))
 while true; do
   wifi=$(builtin_cat /sys/class/net/wlan0/operstate)
   eth=$(builtin_cat /sys/class/net/eth0/operstate)
@@ -25,6 +27,9 @@ while true; do
   else
     volume="Muted"
   fi
-  xsetroot -name "W: $wifi | E: $eth | Vol: $voldevice $volume | $sys_load | $mem | $date"
-  sleep 5
+  output="W: $wifi | E: $eth | Vol: $voldevice $volume | $sys_load | $mem | $date"
+  printf "\033[s\033[1;$(($width - ${#output}))H"
+  printf "$output"
+  printf "\033[u"
+  sleep 2
 done
