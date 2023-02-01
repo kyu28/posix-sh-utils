@@ -8,7 +8,12 @@ A performance mode setting script
 A volume setting script
 
 ## status.sh
-A status bar script, design for dwm
+A status bar script, design for dwm  
+Usage: `status.sh &` 
+
+## statuscli.sh
+Same status bar as above, design for tty  
+Usage: `statuscli.sh &`
 
 ## webserver.sh
 A script that start a webserver with file index, requires netcat or socat
