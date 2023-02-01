@@ -1,14 +1,18 @@
-# posix-shell-scripts
-Some POSIX Shell scripts to maintain system
+# posix-sh-tools
+Some POSIX Shell implemented tools
+
+## Why POSIX Shell?
+No compilation, maximum portability, almost no dependency.
+POSIX Shell can run on almost every device such as your old PC, your unrooted Android phone and even your router.
 
 ## perfset
-A performance mode setting script
+A performance mode setting script, design to recover the function of Fn+Q performance mode toggling on Lenovo laptop.
 
 ## vol.sh
 A volume setting script
 
 ## status.sh
-A status bar script, design for dwm  
+A status bar script, design for suckless's dwm  
 Usage: `status.sh &` 
 
 ## statuscli.sh
@@ -49,7 +53,7 @@ Known issue:
 - Careful with filenames contain `*`
 
 ## svi.sh - simple vi
-A functionless simple vi editor implementation
+A simple vi editor implementation
 
 
 Usage:  
