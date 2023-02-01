@@ -5,12 +5,13 @@ builtin_cat() {
   done < $1
 }
 alias arr='set --'
+pactl stat > /dev/null # Start pulseaudio
 while true; do
   wifi=$(builtin_cat /sys/class/net/wlan0/operstate)
   eth=$(builtin_cat /sys/class/net/eth0/operstate)
   arr $(free -h) && mem=$9'/'$8
   arr $(builtin_cat /proc/loadavg) && sys_load=$1
-  arr $(df -h /) && disk=${11}
+#  arr $(df -h /) && disk=${11}
 #  battery="$(builtin_cat /sys/class/power_supply/BAT0/status) $(builtin_cat /sys/class/power_supply/BAT0/capacity)%"
 #  temp=$(($(builtin_cat /sys/class/thermal/thermal_zone0/temp) / 1000))"°C"
   date=$(date +"%Y-%m-%d %H:%M")
