@@ -12,12 +12,14 @@ sfm_page=""
 sfm_marked=""
 sfm_saveifs=$IFS
 sfm_escape="$(printf '\033')"
+sfm_ls_param=""
 IFS=$'\n'
 
 sfm_init() {
   stty -echo # No echo
   printf "\033[?25l" # Hide cursor
   sfm_height=$(stty size) && sfm_height=${sfm_height%' '*}
+  sfm_ls_param="$@"
   clear
 }
 
@@ -30,6 +32,27 @@ sfm_quit() {
   exit 0
 }
 
+sfm_ls() {
+  if [ "$1" = "-a" ]; then
+    for sfm_file in .*; do
+      [ "$sfm_file" = "." ] && continue
+      [ "$sfm_file" = ".." ] && continue
+      if [ -d "$sfm_file" ]; then
+        echo "$sfm_file/"
+      else
+        echo "$sfm_file"
+      fi
+    done
+  fi
+  for sfm_file in *; do
+    if [ -d "$sfm_file" ]; then
+      echo "$sfm_file/"
+    else
+      echo "$sfm_file"
+    fi
+  done
+}
+
 sfm_update() {
   if [ -n "$1" ]; then
     sfm_start=1
@@ -38,7 +61,7 @@ sfm_update() {
   sfm_pwd=$PWD
   sfm_files=""
   sfm_page=""
-  set -- $(ls -p -w1 $PWD)
+  set -- $(sfm_ls$IFS$sfm_ls_param $PWD)
   sfm_files_num=$#
   if [ $(($sfm_start + $sfm_cursor - 1)) -gt $sfm_files_num ]; then
     sfm_cursor=$(($sfm_height - 1))
@@ -180,7 +203,7 @@ sfm_key_input() {
 }
 
 main() {
-  sfm_init
+  sfm_init "$@"
   trap 'sfm_quit' 2 3 6 9 15 # INT QUIT ABRT KILL TERM
   while [ 0 ]; do # true
     [ "$sfm_pwd" != "$PWD" ] && sfm_update 1
