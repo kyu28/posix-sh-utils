@@ -2,12 +2,11 @@
 # fm - file manager
 
 fm_cursor=1
-fm_height=0
+fm_height=24
 fm_files_num=0
 fm_cur_file=""
 fm_start=1
 fm_files=""
-fm_pwd=""
 fm_page=""
 fm_marked=""
 fm_ls_param=""
@@ -16,11 +15,13 @@ FM_SAVEIFS=$IFS
 IFS=$'\n'
 
 fm_init() {
+  trap 'fm_quit' 2 3 6 9 15 # INT QUIT ABRT KILL TERM
   stty -echo # No echo
   printf "\033[?25l" # Hide cursor
   fm_height=$(stty size) && fm_height=${fm_height%' '*}
   [ "$1" = "-a" ] && fm_ls_param="-a"
   clear
+  fm_update
 }
 
 fm_quit() {
@@ -33,11 +34,6 @@ fm_quit() {
 }
 
 fm_update() {
-  if [ -n "$1" ]; then
-    fm_start=1
-    fm_cursor=1
-  fi
-  fm_pwd=$PWD
   set -- ${fm_ls_param:+.?*} * # .?* excludes .
   fm_files_num=$#
   if [ $(($fm_start + $fm_cursor - 1)) -gt $fm_files_num ]; then
@@ -88,6 +84,7 @@ fm_key_input() {
     [ "$fm_input" = '[' ] && read -rn 1 fm_input && fm_input='['$fm_input
     [ "$fm_input" = 'O' ] && read -rn 1 fm_input && fm_input='O'$fm_input # F Keys
   done
+  fm_dont_update=0
   case "$fm_input" in
     'q') fm_quit;;
     '[A')
@@ -98,7 +95,8 @@ fm_key_input() {
         set -- $fm_files
         eval fm_file=\${$fm_start}
         fm_page="$fm_file""$IFS""${fm_page%$IFS*$IFS}"$IFS
-      fi;;
+      fi
+      fm_dont_update=1;;
     '[B')
       if [ $fm_cursor -lt $(($fm_height - 1)) ]; then
         [ $fm_cursor -lt $fm_files_num ] && fm_cursor=$(($fm_cursor + 1))
@@ -109,19 +107,17 @@ fm_key_input() {
           eval fm_file=\${$(($fm_cursor + $fm_start - 1))}
           fm_page=${fm_page#*"$IFS"}"$fm_file""$IFS"
         fi
-      fi;;
-    '[C') [ -d "$fm_cur_file" ] && cd "$fm_cur_file";;
-    '[D') cd ..;;
+      fi
+      fm_dont_update=1;;
+    '[C')
+      [ -d "$fm_cur_file" ] && cd "$fm_cur_file" && fm_start=1 && fm_cursor=1;;
+    '[D') cd .. && fm_start=1 && fm_cursor=1;;
     'x')
       printf "\033[$fm_height;1H\033[2KDelete this file? (y/N)"
       read -rn 1 fm_input
       if [ $fm_input = 'y' ]; then
         rm -rf $fm_cur_file
-        if [ $? -eq 0 ]; then
-          fm_update
-        else
-          sleep 3
-        fi
+        [ $? -ne 0 ] && sleep 3
       fi;;
     'r')
       printf "\033[$fm_height;1H\033[2KNew path: \033[?25h"
@@ -131,11 +127,7 @@ fm_key_input() {
       printf "\033[?25l"
       if [ -n "$fm_input" ]; then
         mv $fm_cur_file $fm_input
-        if [ $? -eq 0 ]; then
-          fm_update
-        else
-          sleep 3
-        fi
+        [ $? -ne 0 ] && sleep 3
       fi;;
     ' ')
       fm_marked_sign=" "
@@ -147,15 +139,14 @@ fm_key_input() {
       else
         fm_marked=${fm_marked%"$fm_marked_file""$IFS"*}${fm_marked#*"$fm_marked_file""$IFS"}
       fi
-      printf "\033[$fm_cursor;1H\033[7m$fm_marked_sign\033[m";;
+      printf "\033[$fm_cursor;1H\033[7m$fm_marked_sign\033[m"
+      fm_dont_update=1;;
     'v')
       mv $fm_marked .
-      fm_marked=""
-      fm_update;;
+      fm_marked="";;
     'p')
       /bin/cp -rf $fm_marked . # Careful with *
-      fm_marked=""
-      fm_update;;
+      fm_marked="";;
     'd')
       printf "\033[$fm_height;1H\033[2KDelete these files? (y/N)"
       read -rn 1 fm_input
@@ -163,7 +154,6 @@ fm_key_input() {
         rm -rf $fm_marked
         [ $? -ne 0 ] && sleep 3
         fm_marked=""
-        fm_update
       fi;;
     'm')
       printf "\033[$fm_height;1H\033[2KNew directory name: \033[?25h"
@@ -173,20 +163,16 @@ fm_key_input() {
       printf "\033[?25l"
       if [ -n "$fm_input" ]; then
         mkdir "$fm_input"
-        if [ $? -eq 0 ]; then
-          fm_update
-        else
-          sleep 3
-        fi
+        [ $? -ne 0 ] && sleep 3
       fi;;
+    *) fm_dont_update=1;;
   esac
+  [ $fm_dont_update -ne 1 ] && fm_update
 }
 
 main() {
   fm_init "$@"
-  trap 'fm_quit' 2 3 6 9 15 # INT QUIT ABRT KILL TERM
   while [ 0 ]; do # true
-    [ "$fm_pwd" != "$PWD" ] && fm_update 1
     fm_print
     fm_key_input
   done
