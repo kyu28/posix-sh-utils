@@ -22,11 +22,11 @@ Usage: `statuscli.sh &`
 ## webserver.sh
 A script that start a webserver with file index, requires netcat or socat
 
-## sfm.sh - simple file manager
+## fm.sh - file manager
 A simple file manager script, inspired by nnn and fff
 
 Usage:  
-`sfm.sh [-a]`
+`fm.sh [-a]`
 - Navigate - up and down key
 - Go to parent directory - left key
 - Go into highlighted directory - right key
@@ -36,15 +36,16 @@ Usage:
 - Mark or unmark a file or directory - space
 - Copy marked files and directories to current directory - p
 - Move marked files and directories to current directory - v
-- Quit sfm - q
+- Quit fm - q
 - To show hidden objects, use option `-a`
 
 Tips:
 To enable cd on exit, add
 ```
-sfm() {
-  /bin/sfm "$@"  # path to your sfm
-  cd $(cat $HOME/.sfm_path)
+fm() {
+  /bin/fm.sh "$@"  # path to your fm.sh
+  cd $(cat $HOME/.fm_path)
+  rm $HOME/.fm_path # Optional, delete path file
 }
 ```
 to your ~/.bashrc or ~/.zshrc file
