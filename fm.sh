@@ -1,5 +1,5 @@
 #!/bin/sh
-# fm - simple file manager
+# fm - file manager
 
 fm_cursor=1
 fm_height=0
@@ -10,25 +10,25 @@ fm_files=""
 fm_pwd=""
 fm_page=""
 fm_marked=""
-fm_saveifs=$IFS
-fm_escape="$(printf '\033')"
 fm_ls_param=""
+FM_ESCAPE="$(printf '\033')"
+FM_SAVEIFS=$IFS
 IFS=$'\n'
 
 fm_init() {
   stty -echo # No echo
   printf "\033[?25l" # Hide cursor
   fm_height=$(stty size) && fm_height=${fm_height%' '*}
-  fm_ls_param="$@"
+  [ "$1" = "-a" ] && fm_ls_param="-a"
   clear
 }
 
 fm_quit() {
   stty echo
   printf "\033[?25h"
+  IFS=$FM_SAVEIFS
   clear
   echo $PWD > $HOME/.fm_path
-  IFS=$fm_saveifs
   exit 0
 }
 
@@ -66,17 +66,15 @@ fm_print() {
   printf "\033[1;1H"
   fm_i=1
   for fm_file in $fm_page; do
-    [ $fm_i -eq $fm_cursor ] && printf "\033[7m" && fm_cur_file=${fm_file%'/'}
-    fm_marked_flag=0
+    [ $fm_i -eq $fm_cursor ] && printf "\033[7m" && fm_cur_file=$fm_file
+    fm_marked_sign=" "
     for fm_marked_file in $fm_marked; do
-      if [ "$PWD/${fm_file%'/'}" = "$fm_marked_file" ]; then
-        fm_marked_flag=1
-        printf "+"
+      if [ "$PWD/$fm_file" = "$fm_marked_file" ]; then
+        fm_marked_sign="+"
         break
       fi
     done
-    [ $fm_marked_flag -eq 0 ] && printf " "
-    echo ' '$fm_file
+    echo "$fm_marked_sign $fm_file"
     [ $fm_i -eq $fm_cursor ] && printf "\033[m"
     fm_i=$((fm_i + 1))
   done
@@ -85,11 +83,10 @@ fm_print() {
 
 fm_key_input() {
   read -rn 1 fm_input
-  while [ "$fm_input" = "$fm_escape" ]; do
+  while [ "$fm_input" = "$FM_ESCAPE" ]; do
     read -rn 1 fm_input
     [ "$fm_input" = '[' ] && read -rn 1 fm_input && fm_input='['$fm_input
-    # F keys
-    [ "$fm_input" = 'O' ] && read -rn 1 fm_input && fm_input='O'$fm_input
+    [ "$fm_input" = 'O' ] && read -rn 1 fm_input && fm_input='O'$fm_input # F Keys
   done
   case "$fm_input" in
     'q') fm_quit;;
@@ -113,7 +110,7 @@ fm_key_input() {
           fm_page=${fm_page#*"$IFS"}"$fm_file""$IFS"
         fi
       fi;;
-    '[C') [ -d $fm_cur_file ] && cd $fm_cur_file;;
+    '[C') [ -d "$fm_cur_file" ] && cd "$fm_cur_file";;
     '[D') cd ..;;
     'x')
       printf "\033[$fm_height;1H\033[2KDelete this file? (y/N)"
@@ -141,17 +138,16 @@ fm_key_input() {
         fi
       fi;;
     ' ')
-      fm_marked_flag=0
+      fm_marked_sign=" "
       for fm_marked_file in $fm_marked; do
-        [ "$PWD/${fm_cur_file%'/'}" = "$fm_marked_file" ] && fm_marked_flag=1 && break
+        [ "$PWD/$fm_cur_file" = "$fm_marked_file" ] && fm_marked_sign="+" && break
       done
-      if [ $fm_marked_flag -eq 0 ]; then
-        fm_marked="$fm_marked""$PWD/${fm_cur_file%'/'}""$IFS"
-        printf "\033[$fm_cursor;1H\033[7m+ $fm_cur_file\n\033[m"
+      if [ "$fm_marked_sign" = " " ]; then # toggle marked status
+        fm_marked="$fm_marked""$PWD/$fm_cur_file""$IFS"
       else
         fm_marked=${fm_marked%"$fm_marked_file""$IFS"*}${fm_marked#*"$fm_marked_file""$IFS"}
-        printf "\033[$fm_cursor;1H\033[7m  $fm_cur_file\n\033[m"
-      fi;;
+      fi
+      printf "\033[$fm_cursor;1H\033[7m$fm_marked_sign\033[m";;
     'v')
       mv $fm_marked .
       fm_marked=""
@@ -196,4 +192,4 @@ main() {
   done
 }
 
-main "$@"
+main "$1"
