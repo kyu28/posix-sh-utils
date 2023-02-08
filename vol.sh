@@ -12,6 +12,6 @@ else
 fi
 
 psdata=$(ps -A -o comm -o pid)
-set -- ${psdata#*'status.sh'}
-kill -9 -$1
+set -- ${psdata#*'status.sh'} # refresh status.sh
+kill -9 $1
 exec status.sh
