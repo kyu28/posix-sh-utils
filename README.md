@@ -9,13 +9,14 @@ POSIX Shell can run on almost every device such as your old PC, your unrooted An
 A performance mode setting script, design to recover the function of Fn+Q performance mode toggling on Lenovo laptop.
 
 ## vol.sh
-A volume setting script
+A volume setting script  
+Any volume change will refresh status.sh
 
-## status.sh
+## status
++ status.sh  
 A status bar script, design for suckless's dwm  
 Usage: `status.sh &` 
-
-## statuscli.sh
++ statuscli.sh  
 Same status bar as above, design for tty  
 Usage: `statuscli.sh &`
 
