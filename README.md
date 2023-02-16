@@ -54,18 +54,19 @@ to your ~/.bashrc or ~/.zshrc file
 Known issue:
 - Careful with filenames contain `*`
 
-## svi.sh - simple vi
+## vi.sh - line oriented vi
 A simple vi editor implementation
 
 
 Usage:  
-`svi.sh FILENAME`
+`vi.sh FILENAME`
 - At normal mode
   - Delete one line - D
   - Clear one line and enter insert mode - S
   - New line below cursor and enter insert mode - o
   - New line above cursor and enter insert mode - O
   - Enter command mode - :
+  - Use direction keys or hjkl to navigate
 - At insert mode
   - Return to normal mode - Esc
 - At command mode
