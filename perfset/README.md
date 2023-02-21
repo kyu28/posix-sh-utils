@@ -15,8 +15,6 @@ When switching to powersave, the backlight will be turned down a bit (won't if *
 
 2.Change your *sudoers* file and add `%user ALL = (root)NOPASSWD:/usr/bin/tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor` at the end of the file in order to make the governor can be changed without password.
 
-2(for cpupower version).Change your *sudoers* file and add `%user ALL = (root)NOPASSWD:/usr/bin/cpupower` at the end of the file in order to make the governor can be changed without password.
-
 3.Execute it directly in a terminal, such as `./perfset.sh` or `bash perfset.sh` or `source perfset.sh`.
 
 
