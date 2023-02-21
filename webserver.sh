@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# dependency: nc
+# dependency: netcat
 SHELL=/bin/sh
+NETCAT="busybox nc"
 PORT=8000
 WEBROOT=.
 SAVEIFS=$IFS
@@ -19,56 +20,54 @@ webserve() {
 # Replace %20 with <space>
   suffix=${filename#*"%20"}
   while [ "$filename" != "$suffix" ]; do
-    prefix=${filename%%"%20"*}
-    filename=$prefix' '$suffix
+    filename=${filename%%"%20"*}' '$suffix
     suffix=${filename#*"%20"}
   done
 
   if [ -f "$filename" ]; then
     printf "HTTP/1.1 200 OK\r\n"
-
 # Check mime
-    ext=${filename##*.}
-    mime="application/octet-stream"
-    ([ "$ext" = htm ] || [ "$ext" = html ]) && mime="text/html"
-    [ "$ext" = css ] && mime="text/css"
-    [ "$ext" = js ] && mime="text/javascript"
-    [ "$ext" = txt ] && mime="text/plain"
-    ([ "$ext" = jpg ] || [ "$ext" = jpeg ]) && mime="image/jpeg"
-    [ "$ext" = png ] && mime="image/png"
-    [ "$ext" = gif ] && mime="image/gif"
-    [ "$ext" = wav ] && mime="audio/wav"
-    [ "$ext" = ogg ] && mime="audio/ogg"
-    [ "$ext" = mp3 ] && mime="audio/mpeg"
-    [ "$ext" = mp4 ] && mime="video/mp4"
-    [ "$ext" = json ] && mime="application/json"
-    [ "$ext" = pdf ] && mime="application/pdf"
+    case "${filename##*.}" in
+      "htm" | "html") mime="text/html";;
+      "css") mime="text/css";;
+      "js") mime="text/javascript";;
+      "sh" | "txt") mime="text/plain";;
+      "jpg" | "jpeg") mime="image/jpeg";;
+      "png") mime="image/png";;
+      "gif") mime="image/gif";;
+      "wav") mime="audio/wav";;
+      "ogg") mime="audio/ogg";;
+      "mp3") mime="audio/mpeg";;
+      "mp4") mime="video/mp4";;
+      "json") mime="application/json";;
+      "pdf") mime="application/pdf";;
+      *) mime="application/octet-stream";;
+    esac
     printf "Content-Type: $mime\r\n\r\n"
-
     cat "$filename"
     printf "\r\n"
 
 # Optional directory index
-  elif dirCheck="$(ls -d -p $filename)" \
-       && [ ${dirCheck%/} != $dirCheck ]; then
+  elif [ -d "$filename" ]; then
     printf "HTTP/1.1 200 OK\r\n"
     printf "Content-Type: text/html\r\n\r\n"
-    printf "<meta charset=\"utf-8\">"
-    upperDir=${url%/*/}/
-    [ "$url" != '/' ]  && printf "<a href=\"${upperDir:-/}\">../</a><br/>"
+    printf '<meta charset="utf-8">'
+    upper_dir=${url%/*/}/
+    ([ "$url" != '/' ] && printf "<a href=\"${upper_dir:-/}\">../</a><br/>") \
+      || url=""
     IFS=$'\n'
-    for i in $(ls -w 1 -p $WEBROOT$url); do
-      inner_html=$i
-# Replace <space> with &nbsp;
+    for i in $WEBROOT$url/*; do
+      inner_html=${i#$WEBROOT$url/}
+      [ -d "$inner_html" ] && inner_html="$inner_html/"
+# Replace space with &nbsp;
       suffix=${inner_html#*' '}
       while [ "$inner_html" != "$suffix" ]; do
-        prefix=${inner_html%%' '*}
-        inner_html=$prefix'&nbsp;'$suffix
+        inner_html=${inner_html%%' '*}'&nbsp;'$suffix
         suffix=${inner_html#*' '}
       done
-      printf "<a href=\"$url$i\">$inner_html</a><br/>\n"
+      printf "<a href=\"${i#$WEBROOT}\">$inner_html</a><br/>\n"
     done
-    IFS=$SAVEIFS
+    IFS="$SAVEIFS"
     printf "\r\n"
 # End of directory index
   else
@@ -81,16 +80,9 @@ webserve() {
 listen() {
   printf "Listening 0.0.0.0:$PORT"
   while true; do
-    busybox nc -lp $PORT -e $SHELL $0 serve
+    $NETCAT -lp $PORT -e $SHELL $0 serve
     [ "$?" = 1 ] && sleep 5
   done;
 }
 
-if [ "$1" = "start" ]; then
-  listen
-elif [ "$1" = "serve" ]; then
-  webserve
-else
-  printf "Simple web server\n\n"
-  printf "Usage: $0 start\n"
-fi
+([ "$1" = "serve" ] && webserve) || listen
