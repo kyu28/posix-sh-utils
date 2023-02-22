@@ -6,7 +6,7 @@ No compilation, maximum portability, almost no dependency.
 POSIX Shell can run on almost every device such as your old PC, your unrooted Android phone and even your router.
 
 ## sys settings
-Some scripts used to change system settings
+Some scripts to change system settings
 
 ## status
 + status.sh  
