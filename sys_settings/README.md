@@ -6,7 +6,9 @@ Some scripts use to change system settings
 A performance mode setting script, design to recover the function of Fn+Q performance mode toggling on Lenovo laptop.
 
 ## backlight.sh
-A script use to change laptop monitor backlight
+Change laptop monitor backlight
 
 ## volume.sh
-A script use to change volume
+Change volume
+Any volume change will refresh `status.sh`
+Design for Suckless' DWM

@@ -1,11 +1,13 @@
 #!/bin/sh
-brightness=$(cat /sys/class/backlight/amdgpu_bl0/brightness)
-if [ $@ = "up" ]; then
+DEVICE="/sys/class/backlight/amdgpu_bl0/brightness"
+MAX=255
+brightness=$(cat $DEVICE)
+if [ $1 = "up" ]; then
   brightness=$(($brightness * 2 + 1))
-  if [ $brightness -gt 255 ]; then
-    brightness=255
+  if [ $brightness -gt $MAX ]; then
+    brightness=$MAX
   fi
 else
   brightness=$((($brightness + 1) / 2))
 fi
-echo $brightness > /sys/class/backlight/amdgpu_bl0/brightness
+echo $brightness > $DEVICE
