@@ -5,12 +5,8 @@ Some POSIX Shell implemented tools
 No compilation, maximum portability, almost no dependency.
 POSIX Shell can run on almost every device such as your old PC, your unrooted Android phone and even your router.
 
-## perfset
-A performance mode setting script, design to recover the function of Fn+Q performance mode toggling on Lenovo laptop.
-
-## vol.sh
-A volume setting script  
-Any volume change will refresh status.sh
+## sys settings
+Some scripts to change system settings
 
 ## status
 + status.sh  
